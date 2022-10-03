@@ -425,7 +425,9 @@ export default () => {
 				</Card>
 			</Flex>
 			<Buttons>
-				<Button>🏗️ Build Schedule</Button>
+				<Button onClick={() => toast.error('Not yet implemented.')}>
+					🏗️ Build Schedule
+				</Button>
 			</Buttons>
 		</Layout>
 	)
