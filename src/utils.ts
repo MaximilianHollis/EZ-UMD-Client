@@ -20,7 +20,7 @@ export const toHumanTime = (time: number) =>
 
 export const toMinutes = (time: string) => {
 	const [hours, minutes] = time.split(':').map(Number)
-	return hours * 60 + minutes
+	return hours * 60 + minutes || 0
 }
 
 export const term_options = [
@@ -58,10 +58,10 @@ export const fetch_schedules = async (settings: Settings) => {
 		avoid_time_ranges: [
 			{
 				start_time: 0,
-				end_time: settings.earliest_start_time,
+				end_time: toMinutes(settings.earliest_start_time),
 			},
 			{
-				start_time: settings.latest_end_time,
+				start_time: toMinutes(settings.latest_end_time),
 				end_time: 1440,
 			},
 		],
