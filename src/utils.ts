@@ -3,7 +3,7 @@ import { Settings } from './interfaces'
 
 export const getLocal = (key: string) => {
 	if (typeof window !== 'undefined' && window) {
-		return JSON.parse(window.localStorage.getItem(key) || '')
+		return JSON.parse(window.localStorage.getItem(key) || '[]')
 	}
 
 	return null
