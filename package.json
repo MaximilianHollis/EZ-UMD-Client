@@ -7,7 +7,7 @@
     "type-check": "tsc"
   },
   "dependencies": {
-    "ethereal2": "^2.1.1",
+    "ethereal2": "^2.1.4",
     "framer-motion": "^7.5.1",
     "ky": "^0.31.3",
     "nanoid": "^4.0.0",

@@ -1223,13 +1223,13 @@ esutils@^2.0.2:
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-2.0.3.tgz#74d2eb4de0b8da1293711910d50775b9b710ef64"
   integrity sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==
 
-ethereal2@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/ethereal2/-/ethereal2-2.1.1.tgz#202db9d45295f754af11293d0c28e31037b0df4d"
-  integrity sha512-pyN2y8ZBuCvGK8GeqxBHhHXYTkBZoV77AwyDAYXB9AmNOsFwrrNUoQKddXWvoze4DV9bjZZYVGllwiKA6e4O0g==
+ethereal2@^2.1.4:
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/ethereal2/-/ethereal2-2.1.4.tgz#4857c5f3429295dda6373bc852a6f22d55499f83"
+  integrity sha512-dvfqh4RVUNb4un1r9cTVO+cM645/Kse1tduRoOI6lgWbz+dLyT4IBWfgbqHvql1Lz86iJZ51XHdgtGF3JRC/5g==
   dependencies:
-    framer-motion "7.3.5"
-    react-icons "4.4.0"
+    framer-motion "7.5.3"
+    react-icons "4.6.0"
     react-use "17.4.0"
     react-virtualized "9.22.3"
     react-window "1.8.7"
@@ -1317,10 +1317,10 @@ flatted@^3.1.0:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.7.tgz#609f39207cb614b89d0765b477cb2d437fbf9787"
   integrity sha512-5nqDSxl8nn5BSNxyR3n4I6eDmbolI6WT+QqR547RwxQapgjQBmtktdP+HTBb/a/zLsbzERTONyUB5pefh5TtjQ==
 
-framer-motion@7.3.5:
-  version "7.3.5"
-  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-7.3.5.tgz#9a3d30658290a473acca268f19c3b65e4c6aeb70"
-  integrity sha512-JrLLVCi59LMI3+ZvSSbxf/Z7SOIdYRZrgdkUvJkzyT2RXu34HtGy26n41jNrcD5K85boqlZhGTbfqnAIfMHRLQ==
+framer-motion@7.5.3:
+  version "7.5.3"
+  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-7.5.3.tgz#a1de7d6c4abbf7333619d4a6c8df74c12240be43"
+  integrity sha512-VvANga9Z7bYtKMAsM/je81FwJDHfThOYywN04xVQ4OGdMVY09Bowx/q7nZd6XtytLuv6byc6GT1mYwag+SQ/nw==
   dependencies:
     "@motionone/dom" "10.13.1"
     framesync "6.1.2"
@@ -2103,7 +2103,12 @@ react-hot-toast@^2.4.0:
   dependencies:
     goober "^2.1.10"
 
-react-icons@4.4.0, react-icons@^4.4.0:
+react-icons@4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-4.6.0.tgz#f83eda179af5d02c047449a20b702c858653d397"
+  integrity sha512-rR/L9m9340yO8yv1QT1QurxWQvWpbNHqVX0fzMln2HEb9TEIrQRGsqiNFQfiv9/JEUbyHmHPlNTB2LWm2Ttz0g==
+
+react-icons@^4.4.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-4.4.0.tgz#a13a8a20c254854e1ec9aecef28a95cdf24ef703"
   integrity sha512-fSbvHeVYo/B5/L4VhB7sBA1i2tS8MkT0Hb9t2H1AVPkwGfVHLJCqyr2Py9dKMxsyM63Eng1GkdZfbWj+Fmv8Rg==

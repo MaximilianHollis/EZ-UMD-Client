@@ -19,8 +19,15 @@ export const toHumanTime = (time: number) =>
 		.padStart(2, '0')}:${(time % 60).toString().padStart(2, '0')}`
 
 export const toMinutes = (time: string) => {
+	let offset = 0
+	if (time.includes('pm') || time.includes('Pm') || time.includes('PM')) {
+		offset = 12 * 60
+	}
+
+	time = time.replace(/(am|pm|AM|PM|Am|Pm)/i, '')
 	const [hours, minutes] = time.split(':').map(Number)
-	return hours * 60 + minutes || 0
+	console.log(hours, minutes)
+	return hours * 60 + minutes + offset || 0
 }
 
 export const term_options = [
