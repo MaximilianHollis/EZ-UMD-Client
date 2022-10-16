@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { motion } from 'framer-motion'
-import { Br, Button, Buttons, Hint, Option, Select, Title } from 'ethereal2'
+import { Br, Hint, Option, Select, Title } from 'ethereal2'
 import { nanoid } from 'nanoid'
 import { memo } from 'react'
 import toast from 'react-hot-toast'
@@ -329,7 +329,7 @@ const Schedule = ({ dan_schedule }: { dan_schedule?: DanSchedule }) => {
 					marginTop: '10px',
 				}}
 			/>
-		{/* 	<Buttons>
+			{/* 	<Buttons>
 				<Button outlined>Save Schedule</Button>
 				<Button>Next Schedule</Button>
 			</Buttons> */}
