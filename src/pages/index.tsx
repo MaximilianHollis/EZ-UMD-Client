@@ -32,6 +32,7 @@ import {
 	fetch_courses,
 	fetch_professors,
 	term_options,
+	getLocal,
 	fetch_schedules,
 } from '../utils'
 import FetchBranding from '../components/FetchBranding'
@@ -76,23 +77,30 @@ export default () => {
 		earliest_start_time: '9:00AM',
 		latest_end_time: '4:00PM',
 	})
-	const [schedule, setSchedule] = useState<DanSchedule>()
+	const [schedules, setSchedules] = useState<DanSchedule[]>()
 	const [availableCourses, setAvailableCourses] = useState<string[]>([])
 
 	const { courses } = settings
 
 	useEffect(() => {
 		const load_courses = async () => {
+			setAvailableCourses(getLocal('course_cache') || [])
+			let wait_toast
 			try {
-				const wait_toast = toast.loading('Loading courses...')
+				if (availableCourses.length === 0) {
+					wait_toast = toast.loading('Refreshing courses...')
+				}
+
 				await fetch_courses().then((res) => {
-					console.log(res)
 					setAvailableCourses(res as string[])
 				})
-
-				toast.success('Loaded courses!', { id: wait_toast })
+				if (availableCourses.length === 0) {
+					toast.success('Loaded courses!', { id: wait_toast })
+				}
 			} catch {
-				toast.error('Failed to load courses.')
+				if (availableCourses.length === 0) {
+					toast.error('Failed to load courses.')
+				}
 			}
 		}
 
@@ -112,6 +120,15 @@ export default () => {
 			toast.success('Loaded professors!', { id: prof_toast })
 		}
 	}, [courses])
+
+	useEffect(() => {
+		if (settings.term === 'Fall') {
+			toast('Why?')
+			setTimeout(() => {
+				setSettings({ ...settings, term: 'Spring' })
+			}, 1000)
+		}
+	}, [settings, settings.term])
 
 	return (
 		<Layout title="EZ-UMD">
@@ -242,11 +259,10 @@ export default () => {
 								<Radio
 									value={term_options.find((o) => o.id === settings.term)}
 									options={term_options}
-									onChange={() =>
+									onChange={(val) =>
 										setSettings({
 											...settings,
-											/* 											Term: val.id as Settings['term'],
-											 */
+											term: val.id as Settings['term'],
 										})
 									}
 								/>
@@ -394,7 +410,10 @@ export default () => {
 
 									<Hint>Attempt to have a full day off</Hint>
 								</span>
-								<Toggle value={false} onClick={console.log} />
+								<Toggle
+									value={false}
+									onClick={() => toast.error('Not implemented')}
+								/>
 							</Option>
 							<Option>
 								<span>
@@ -430,7 +449,7 @@ export default () => {
 										setSettings({ ...settings, avoid_professors: e })
 									}
 								/>
-								<Hint>Blacklist (Optional)</Hint>
+								<Hint>Blocklist (Optional)</Hint>
 							</span>
 						</Option>
 						<Option>
@@ -454,18 +473,21 @@ export default () => {
 							const schedule_toast = toast.loading('Building your schedule...')
 							setLoading(true)
 							try {
-								const new_schedule = await fetch_schedules(settings)
-								setSchedule(
-									// @ts-expect-error - I cannot be bothered to fix the huge annoying mess of types between the frontend and backend
-									new_schedule?.map((course: any) => ({
-										...(course[1] as DanCourse),
+								const new_schedules = await fetch_schedules(settings)
+								setSchedules(
+									Object.entries(new_schedules as DanCourse).map((course) => ({
+										// @ts-expect-error - I don't even want to know why this is happening
+										...course[1],
 										course_name: course[0] as string,
-									})) as DanSchedule,
+									})),
 								)
+
 								toast.success('Finished making your schedule!', {
 									id: schedule_toast,
 								})
-								window.scrollTo(0, 10000)
+								setTimeout(() => {
+									window.scrollTo(0, 10000)
+								}, 100)
 							} catch {
 								toast.error('Error while creating your schedule!', {
 									id: schedule_toast,
@@ -475,7 +497,7 @@ export default () => {
 							setLoading(false)
 						}}
 					>
-						🏗️ Build Schedule
+						🏗️ Build Schedules
 					</Button>
 				</Buttons>
 			</Wrapper>
@@ -500,13 +522,11 @@ export default () => {
 				<a href="https://fetchmonitors.com">Fetch Monitors</a>
 			</Wrapper>
 			<Wrapper invis>
-				<Schedule dan_schedule={schedule} />
+				<Schedule dan_schedules={schedules} />
 			</Wrapper>
 			<Wrapper
 				invis
 				style={{
-					marginTop: '20px',
-					marginBottom: '20px',
 					display: 'flex',
 					justifyContent: 'center',
 					flexDirection: 'row',

@@ -7,17 +7,20 @@
     "type-check": "tsc"
   },
   "dependencies": {
-    "ethereal2": "^2.1.4",
+    "ethereal2": "^2.1.6",
     "framer-motion": "^7.5.1",
+    "html2canvas": "^1.4.1",
     "ky": "^0.31.3",
     "nanoid": "^4.0.0",
     "next": "latest",
     "react": "^18",
+    "react-colorful": "^5.6.1",
     "react-dom": "^18",
     "react-hot-toast": "^2.4.0",
     "react-icons": "^4.4.0",
     "react-use": "^17.4.0",
-    "styled-components": "^5.3.6"
+    "styled-components": "^5.3.6",
+    "use-react-screenshot": "^3.0.0"
   },
   "devDependencies": {
     "@types/node": "^12.12.21",

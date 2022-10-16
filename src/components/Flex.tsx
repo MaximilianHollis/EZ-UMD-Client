@@ -1,9 +1,12 @@
 import styled from 'styled-components'
 
-export const ComingSoon = styled.span<{ comingSoon?: boolean }>`
+export const ComingSoon = styled.span<{
+	comingSoon?: boolean
+	comingSoonSmall?: boolean
+}>`
 	position: relative;
-	${({ comingSoon }) =>
-		comingSoon &&
+	${({ comingSoon, comingSoonSmall }) =>
+		(comingSoon || comingSoonSmall) &&
 		`
 		opacity: 0.6;
 		user-select: none;
@@ -20,6 +23,14 @@ export const ComingSoon = styled.span<{ comingSoon?: boolean }>`
 		}
 
 	`}
+	${({ comingSoonSmall }) =>
+		comingSoonSmall &&
+		`
+			&:after{
+				font-size: 1rem; 
+				transform: translate(0%,-50%) rotate(-15deg);
+			}
+		`}
 `
 
 export const Flex = styled(ComingSoon)<{

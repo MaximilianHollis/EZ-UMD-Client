@@ -21,7 +21,7 @@ const Layout = ({ children, title = 'This is the default title' }: Props) => (
 			}}
 		>
 			Made with ❤️ By <a href="https://maxjs.dev">Max Hollis</a> and{' '}
-			<a href="https://danielh.dev">Daniel Huang</a> | Sponsored by:{' '}
+			<a href="https://danielh.cc">Daniel Huang</a> | Sponsored by:{' '}
 			<a href="https://github.com/Fetch-Monitors">Fetch Monitors</a> | Powered
 			by: <a href="https://github.com/danielhuang/cotton">Cotton</a> and{' '}
 			<a href="https://github.com/Fetch-Monitors/Ethereal2">Ethereal2</a>

@@ -50,6 +50,7 @@ export type DanCourse = {
 	open_seats: number
 	waitlist_seats: number
 	timeslots: Timeslot[]
+	gpa_score: number
 }
 
 export type DanSchedule = DanCourse[]

@@ -1,11 +1,5 @@
 import { createGlobalStyle } from 'styled-components'
 
-export const theme = {
-	primary: '#4D8BF7',
-	secondary: '#999999',
-	borderRadius: '5px',
-}
-
 const GlobalStyle = createGlobalStyle`
 	* {
 		box-sizing: border-box;
@@ -31,6 +25,13 @@ const GlobalStyle = createGlobalStyle`
 		-moz-osx-font-smoothing: grayscale;
 		background: #fafafa;
 	}
+
+/* 	* .dark {
+			filter: invert(1);
+			background: #000;
+		
+		
+	} */
 
 `
 export default GlobalStyle

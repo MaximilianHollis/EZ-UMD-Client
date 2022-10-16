@@ -1,12 +1,13 @@
-import styled from 'styled-components'
-import { motion } from 'framer-motion'
-import { Br, Hint, Option, Select, Title } from 'ethereal2'
+import styled, { ThemeContext } from 'styled-components'
+import { LayoutGroup, motion } from 'framer-motion'
+import { Br, Button, Buttons, Hint, Label, Option, Select } from 'ethereal2'
 import { nanoid } from 'nanoid'
-import { memo } from 'react'
-import toast from 'react-hot-toast'
+// @ts-expect-error shut up
+import { useScreenshot } from 'use-react-screenshot'
+import { memo, useContext, useEffect, useRef, useState } from 'react'
 import { colors, days, toHumanTime } from '../utils'
 import { Wrapper } from './Wrapper'
-import { DanSchedule } from '../interfaces'
+import { DanCourse, DanSchedule } from '../interfaces'
 
 const Row = styled.div`
 	display: flex;
@@ -83,15 +84,37 @@ type Class = {
 	color: string
 }
 
-const Schedule = ({ dan_schedule }: { dan_schedule?: DanSchedule }) => {
+const Schedule = ({ dan_schedules }: { dan_schedules?: DanSchedule[] }) => {
+	const ref = useRef<HTMLDivElement>(null)
+	const theme = useContext(ThemeContext)
+	const [image, takeScreenshot] = useScreenshot()
+	const [vertical, setVertical] = useState(false)
+	const [num, setNum] = useState(0)
+
+	useEffect(() => {
+		if (image) {
+			const a = document.createElement('a')
+			a.href = image
+			a.download = 'schedule.png'
+			a.click()
+		}
+	}, [image])
+
 	const schedule: Class[][] = []
 
-	console.log(dan_schedule)
+	let course_index = 0
+
+	const dan_schedule: DanSchedule =
+		(dan_schedules?.length &&
+			Object.entries(dan_schedules[num]).map(([name, data]) => ({
+				...(data as DanCourse),
+				course_name: name as string,
+			}))) ||
+		[]
 
 	dan_schedule?.forEach((course, ci) => {
-		course.timeslots.forEach((timeslot) => {
+		course.timeslots?.forEach((timeslot) => {
 			timeslot.days.forEach((d) => {
-				console.log(d)
 				const day = days.indexOf(d)
 				const { start_time: start, end_time: end } = timeslot.time_range
 				if (!schedule[day]) {
@@ -104,11 +127,11 @@ const Schedule = ({ dan_schedule }: { dan_schedule?: DanSchedule }) => {
 					end,
 					discussion: timeslot.discussion,
 					location: timeslot.location,
-					layoutId: day + course.course_name,
+					layoutId: course_index.toString(),
 					id: nanoid(),
 					color: colors[ci % colors.length],
 				})
-
+				course_index += 1
 				schedule[day].sort((a, b) => a.start - b.start)
 				// Remove overlapping classes
 				for (let i = 0; i < schedule[day].length - 1; i += 1) {
@@ -123,6 +146,8 @@ const Schedule = ({ dan_schedule }: { dan_schedule?: DanSchedule }) => {
 			})
 		})
 	})
+
+	course_index = 0
 
 	const earliest_class = Math.min(
 		...schedule.map((day) => Math.min(...day.map((c) => c.start))),
@@ -176,8 +201,12 @@ const Schedule = ({ dan_schedule }: { dan_schedule?: DanSchedule }) => {
 
 	return (
 		<Wrapper
+			ref={ref}
 			style={{
 				marginBottom: '20px',
+				transform: vertical ? 'translateX(50%) rotate(90deg)' : 'none',
+				transition: 'transform 0.5s',
+				transformOrigin: 'top left',
 			}}
 		>
 			<div
@@ -194,25 +223,35 @@ const Schedule = ({ dan_schedule }: { dan_schedule?: DanSchedule }) => {
 						justifyContent: 'space-between',
 					}}
 				>
-					<Title>Schedule 1/-- | Aggregated Average GPA: -.--</Title>
 					<Option>
-						<span
-							style={{
-								opacity: 0.5,
-								pointerEvents: 'none',
-							}}
-						>
+						<span>
+							<Label>
+								Schedule {num + 1} of {dan_schedules?.length || '-'}
+							</Label>
+
+							<Hint>Average aggregate GPA: -.--</Hint>
+						</span>
+						{/* <Toggle value={vertical} onClick={() => console.log('')} /> */}
+					</Option>
+
+					<Option>
+						<span>
 							<Select
 								options={[
-									{ id: '1', label: '1' },
-									{ id: '2', label: '2' },
-									{ id: '3', label: '3' },
-									{ id: '4', label: '4' },
-									{ id: '5', label: '5' },
+									{ id: '0', label: '1' },
+									{ id: '1', label: '2' },
+									{ id: '2', label: '3' },
+									{ id: '3', label: '4' },
+									{ id: '4', label: '5' },
+									{ id: '5', label: '6' },
+									{ id: '6', label: '7' },
+									{ id: '7', label: '8' },
+									{ id: '8', label: '9' },
+									{ id: '9', label: '10' },
 								]}
-								value={{ id: '1', label: '1' }}
+								value={{ id: num.toString(), label: (num + 1).toString() }}
 								multi={false}
-								onChange={() => toast('Not implemented')}
+								onChange={(val) => setNum(parseInt(val.id, 10))}
 							/>
 							<Hint>Choose schedule</Hint>
 						</span>
@@ -230,12 +269,7 @@ const Schedule = ({ dan_schedule }: { dan_schedule?: DanSchedule }) => {
 			>
 				<Br />
 			</div>
-			<motion.div
-				layout
-				style={{
-					width: '100%',
-				}}
-			>
+			<LayoutGroup id="schedule">
 				{formattedSchedule.map((classes, i) => (
 					<div
 						key={days[i]}
@@ -264,7 +298,7 @@ const Schedule = ({ dan_schedule }: { dan_schedule?: DanSchedule }) => {
 								</p>
 							</Day>
 							<LayoutRow>
-								{classes.map((c, j) => (
+								{classes.map((c) => (
 									<Item
 										key={c.id}
 										f={!c.name}
@@ -272,12 +306,14 @@ const Schedule = ({ dan_schedule }: { dan_schedule?: DanSchedule }) => {
 										title={c.name}
 										layoutId={c.layoutId}
 									>
-										<div
+										<motion.div
 											style={{
-												background: `${c.color}33`,
-												borderRadius: '10px',
+												background: theme?.solid ? c.color : `${c.color}33`,
+												borderRadius: `${
+													parseInt(theme?.borderRadius, 10) + 5
+												}px`,
 												border: `3px solid ${c.color}`,
-												color: '#111',
+												color: theme?.solid ? '#fff' : '#111',
 												padding: '5px',
 												width: '100%',
 												height: '100%',
@@ -291,7 +327,7 @@ const Schedule = ({ dan_schedule }: { dan_schedule?: DanSchedule }) => {
 											<p
 												style={{
 													margin: 0,
-													color: c.color,
+													color: theme?.solid ? '#fff' : c.color,
 													textOverflow: 'clip',
 													whiteSpace: 'nowrap',
 													fontSize: '12px',
@@ -314,25 +350,44 @@ const Schedule = ({ dan_schedule }: { dan_schedule?: DanSchedule }) => {
 												}}
 											>
 												{` ${c.discussion ? 'Dis' : 'Lec'} `}
-												{`- ${c.location}`}
+												{`- ${c.location}\n`}
 											</span>
-										</div>
+										</motion.div>
 									</Item>
 								))}
 							</LayoutRow>
 						</Row>
 					</div>
 				))}
-			</motion.div>
+			</LayoutGroup>
 			<div
 				style={{
 					marginTop: '10px',
 				}}
 			/>
-			{/* 	<Buttons>
-				<Button outlined>Save Schedule</Button>
-				<Button>Next Schedule</Button>
-			</Buttons> */}
+			<Buttons>
+				<Button
+					outlined
+					disabled={!dan_schedule?.length}
+					onClick={() => {
+						takeScreenshot(ref.current)
+					}}
+				>
+					Save Schedule
+				</Button>
+				<Button
+					disabled={!dan_schedule?.length}
+					onClick={() => {
+						if (num < (dan_schedules?.length || 0) - 1) {
+							setNum(num + 1)
+						} else {
+							setNum(0)
+						}
+					}}
+				>
+					Next Schedule
+				</Button>
+			</Buttons>
 		</Wrapper>
 	)
 }

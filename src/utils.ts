@@ -1,6 +1,20 @@
 import ky from 'ky'
 import { Settings } from './interfaces'
 
+export const getLocal = (key: string) => {
+	if (typeof window !== 'undefined' && window) {
+		return JSON.parse(window.localStorage.getItem(key) || '')
+	}
+
+	return null
+}
+
+export const setLocal = (key: string, value: string | string[]) => {
+	if (window) {
+		window.localStorage.setItem(key, JSON.stringify(value))
+	}
+}
+
 export const days = [
 	'Monday',
 	'Tuesday',
@@ -36,31 +50,46 @@ export const term_options = [
 ]
 
 export const fetch_courses = async () => {
-	const majors: {
-		[key: string]: string
-	} = await ky.get('https://umdb.fetchmonitors.com/majors').json()
-	// Get courses for each major
-	const courses = await Promise.all(
-		Object.keys(majors).map(async (major: string) => {
-			const course = await ky
-				.get(`https://umdb.fetchmonitors.com/courses/${major}`)
-				.json()
-			return course as { [key: string]: string }
-		}),
-	)
+	try {
+		const majors: {
+			[key: string]: string
+		} = await ky
+			.get('https://umdb.fetchmonitors.com/majors', {
+				timeout: 4000,
+			})
+			.json()
+		// Get courses for each major
+		const courses = await Promise.all(
+			Object.keys(majors).map(async (major: string) => {
+				const course = await ky
+					.get(`https://umdb.fetchmonitors.com/courses/${major}`)
+					.json()
+				return course as { [key: string]: string }
+			}),
+		)
 
-	return courses.map((course) => Object.keys(course).map((c) => c)).flat()
+		const formatted_courses = courses
+			.map((course) => Object.keys(course).map((c) => c))
+			.flat()
+
+		// Cache courses
+		setLocal('course_cache', formatted_courses)
+		return formatted_courses
+	} catch {
+		const course_cache = getLocal('course_cache') || []
+		return course_cache
+	}
 }
 
-const course_cache: string[] = []
+const prof_course_cache: string[] = []
 const professor_cache: { [key: string]: string[] } = {}
 
 export const fetch_professors = async (course_id: string) => {
-	if (course_cache.includes(course_id)) {
+	if (prof_course_cache.includes(course_id)) {
 		return professor_cache[course_id]
 	}
 
-	course_cache.push(course_id)
+	prof_course_cache.push(course_id)
 	const json: { name: string }[] = await ky
 		.get(`https://api.umd.io/v1/professors?course_id=${course_id}`)
 		.json()
@@ -84,7 +113,7 @@ export const fetch_schedules = async (settings: Settings) => {
 		],
 	}
 	const json = await ky
-		.post('https://umdb.fetchmonitors.com/build_schedule', {
+		.post('https://umdb.fetchmonitors.com/build_schedules', {
 			json: formatted_settings,
 			timeout: 4000,
 		})
