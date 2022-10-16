@@ -36,14 +36,16 @@ export const term_options = [
 ]
 
 export const fetch_courses = async () => {
-	const majors = await ky.get('https://umdb.fetchmonitors.com/majors').json()
+	const majors: {
+		[key: string]: string
+	} = await ky.get('https://umdb.fetchmonitors.com/majors').json()
 	// Get courses for each major
 	const courses = await Promise.all(
 		Object.keys(majors).map(async (major: string) => {
 			const course = await ky
 				.get(`https://umdb.fetchmonitors.com/courses/${major}`)
 				.json()
-			return course
+			return course as { [key: string]: string }
 		}),
 	)
 
