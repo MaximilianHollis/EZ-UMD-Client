@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react'
 import Head from 'next/head'
-import { Wrapper } from './Wrapper'
 
 type Props = {
 	children?: ReactNode
@@ -27,12 +26,7 @@ const Layout = ({ children, title = 'This is the default title' }: Props) => (
 			by: <a href="https://github.com/danielhuang/cotton">Cotton</a> and{' '}
 			<a href="https://github.com/Fetch-Monitors/Ethereal2">Ethereal2</a>
 		</header>
-		<Wrapper>{children}</Wrapper>
-
-		<footer>
-			<hr />
-			<span />
-		</footer>
+		<div>{children}</div>
 	</div>
 )
 

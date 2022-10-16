@@ -7,7 +7,7 @@ function App({ Component, pageProps }: AppProps) {
 	return (
 		<>
 			<GlobalStyle />
-			<Toaster position="bottom-center" />
+			<Toaster position="top-right" />
 			<ThemeProvider theme={theme}>
 				<Component {...pageProps} />
 			</ThemeProvider>

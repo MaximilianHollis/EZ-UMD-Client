@@ -1,3 +1,5 @@
+import { days } from '../utils'
+
 export type Settings = {
 	courses: string[]
 	avoid_professors: string[]
@@ -27,3 +29,27 @@ export type Section = {
 	credits: number
 	professor: string
 }
+
+export type TimeRange = {
+	start_time: number
+	end_time: number
+}
+
+export type Timeslot = {
+	location: string
+	days: string[]
+	time_range: TimeRange
+	discussion: boolean
+}
+
+export type DanCourse = {
+	course_name: string
+	id: string
+	prof: string
+	total_seats: number
+	open_seats: number
+	waitlist_seats: number
+	timeslots: Timeslot[]
+}
+
+export type DanSchedule = DanCourse[]

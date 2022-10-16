@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const Wrapper = styled.section`
+export const Wrapper = styled.section<{ invis?: boolean }>`
 	width: clamp(280px, 90vw, 100%);
 	margin: 0 auto;
 	padding: 30px;
@@ -11,6 +11,14 @@ export const Wrapper = styled.section`
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 	border-radius: 2px;
 	background: #fff;
+
+	${({ invis }) =>
+		invis &&
+		`
+			background: transparent;
+			padding: 0;
+			box-shadow: none;
+		`}
 
 	// small mobile
 	@media (max-width: 600px) {
