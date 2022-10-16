@@ -488,6 +488,28 @@ export default () => {
 			<Wrapper invis>
 				<Schedule dan_schedule={schedule} />
 			</Wrapper>
+			<Wrapper
+				invis
+				style={{
+					marginTop: '20px',
+					marginBottom: '20px',
+					display: 'flex',
+					justifyContent: 'center',
+					flexDirection: 'row',
+					fontSize: '14px',
+				}}
+			>
+				<p
+					style={{
+						marginRight: '4px',
+					}}
+				>
+					Like this project?{' '}
+				</p>
+				<a href="https://github.com/MaximilianHollis/EZ-UMD-Client">
+					Check out the source code{' '}
+				</a>
+			</Wrapper>
 		</Layout>
 	)
 }
