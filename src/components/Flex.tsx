@@ -9,7 +9,7 @@ export const ComingSoon = styled.span<{ comingSoon?: boolean }>`
 		user-select: none;
 		pointer-events: none;
 		&:after{
-			content: '🚧 Coming Soon';
+			content: '🚧 Coming Soon™️';
 			position: absolute;
 			top: 50%;
 			text-align: center;
