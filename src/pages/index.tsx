@@ -82,7 +82,21 @@ export default () => {
 	const { courses } = settings
 
 	useEffect(() => {
-		fetch_courses().then((res) => setAvailableCourses(res as string[]))
+		const load_courses = async () => {
+			try {
+				const wait_toast = toast.loading('Loading courses...')
+				await fetch_courses().then((res) => {
+					console.log(res)
+					setAvailableCourses(res as string[])
+				})
+
+				toast.success('Loaded courses!', { id: wait_toast })
+			} catch {
+				toast.error('Failed to load courses.')
+			}
+		}
+
+		load_courses()
 	}, [])
 
 	useEffect(() => {
