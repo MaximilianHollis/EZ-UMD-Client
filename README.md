@@ -1,6 +1,6 @@
-# EZ-UMD
+# 📅 EZ-UMD 🏗️
 
-Easy peasy schedule creator for UMD students.
+Easy peasy schedule constructor 🏗️ for UMD students.
 
 Work in progress
 
