@@ -66,7 +66,9 @@ export default ({
 
 	const [, _cancel] = useDebounce(
 		() => {
-			setTheme(localTheme)
+			if (JSON.stringify(localTheme) !== JSON.stringify(default_theme)) {
+				setTheme(localTheme)
+			}
 		},
 		100,
 		[localTheme],

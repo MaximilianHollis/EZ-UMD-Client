@@ -20,7 +20,8 @@
     "react-icons": "^4.4.0",
     "react-use": "^17.4.0",
     "styled-components": "^5.3.6",
-    "use-react-screenshot": "^3.0.0"
+    "use-react-screenshot": "^3.0.0",
+    "zustand": "^4.1.2"
   },
   "devDependencies": {
     "@types/node": "^12.12.21",

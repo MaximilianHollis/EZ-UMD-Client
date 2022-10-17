@@ -17,6 +17,7 @@
     "complexity": "off",
     "react/function-component-definition": "off",
     "prefer-arrow/prefer-arrow-functions": "off",
-    "no-nested-ternary": "off"
+    "no-nested-ternary": "off",
+    "max-nested-callbacks": "off"
   }
 }

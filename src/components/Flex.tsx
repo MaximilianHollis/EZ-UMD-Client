@@ -27,6 +27,7 @@ export const ComingSoon = styled.span<{
 		comingSoonSmall &&
 		`
 			&:after{
+				content: '🚧 Lmao gotem™️';
 				font-size: 1rem; 
 				transform: translate(0%,-50%) rotate(-15deg);
 			}

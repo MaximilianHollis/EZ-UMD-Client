@@ -22,10 +22,10 @@ import {
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useDebounce } from 'react-use'
+import { useDebounce, useEffectOnce } from 'react-use'
 import Layout from '../components/Layout'
 import { Flex } from '../components/Flex'
-import { DanCourse, DanSchedule, Settings } from '../interfaces'
+import { ProfData, Settings } from '../interfaces'
 import { Wrapper } from '../components/Wrapper'
 import Schedule from '../components/Schedule'
 import {
@@ -33,9 +33,10 @@ import {
 	fetch_professors,
 	term_options,
 	getLocal,
-	fetch_schedules,
+	useStore,
 } from '../utils'
 import FetchBranding from '../components/FetchBranding'
+import Professor, { Rating } from '../components/Professor'
 
 const Card = styled(Flex)`
 	flex-direction: column;
@@ -55,7 +56,7 @@ export default () => {
 	const [enableWaitlist, setEnableWaitlist] = useState(false)
 	const [courseSearch, setCourseSearch] = useState('')
 	const [debouncedSearch, setDebouncedSearch] = useState('')
-	const [availableProfessors, setAvailableProfessors] = useState<string[]>([])
+	const [availableProfessors, setAvailableProfessors] = useState<ProfData[]>([])
 	const [loading, setLoading] = useState(false)
 	const [, _cancel] = useDebounce(
 		() => {
@@ -64,25 +65,17 @@ export default () => {
 		100,
 		[courseSearch],
 	)
-	const [settings, setSettings] = useState<Settings>({
-		avoid_professors: [],
-		best_times: [],
-		courses: [],
-		gap_between_classes: 10,
-		max_credits: 18,
-		min_credits: 12,
-		term: 'Spring',
-		free_day: false,
-		waitlist_slots: 5,
-		earliest_start_time: '9:00AM',
-		latest_end_time: '4:00PM',
-	})
-	const [schedules, setSchedules] = useState<DanSchedule[]>()
-	const [availableCourses, setAvailableCourses] = useState<string[]>([])
+	const settings = useStore((state) => state.settings)
+	const setSettings = useStore((state) => state.setSettings)
+	const schedules = useStore((state) => state.schedules)
+	const fetchSchedules = useStore((state) => state.fetchSchedules)
+
+	const availableCourses = useStore((state) => state.availableCourses)
+	const setAvailableCourses = useStore((state) => state.setAvailableCourses)
 
 	const { courses } = settings
 
-	useEffect(() => {
+	useEffectOnce(() => {
 		const load_courses = async () => {
 			setAvailableCourses(getLocal('course_cache') || [])
 			let wait_toast
@@ -105,21 +98,48 @@ export default () => {
 		}
 
 		load_courses()
-	}, [])
+	})
 
 	useEffect(() => {
-		if (courses.length) {
-			const prof_toast = toast.loading('Loading professors...')
-			const profs: string[] = []
-			courses.forEach((course) => {
-				fetch_professors(course).then((res) =>
-					profs.push(...res.filter((prof) => !profs.includes(prof))),
-				)
-			})
-			setAvailableProfessors(profs)
-			toast.success('Loaded professors!', { id: prof_toast })
+		const fetch_all_the_stuff = async () => {
+			if (courses.length) {
+				const prof_toast = toast.loading('Loading professors...')
+				const profs: ProfData[] = getLocal('prof_cache') || []
+				for await (const course of courses) {
+					try {
+						await fetch_professors(course).then((res) => {
+							if (res) {
+								profs.push(
+									...res.filter(
+										(prof) =>
+											!profs.map(({ name }) => name).includes(prof.name),
+									),
+								)
+							}
+						})
+					} catch {
+						toast.error(`Failed to load professors for: ${course}`, {
+							id: prof_toast,
+						})
+					}
+				}
+
+				setAvailableProfessors((avail) => {
+					if (profs.length > avail.length) {
+						toast.success('Loaded professors!', { id: prof_toast })
+					} else {
+						toast('No additional professors to load.', { id: prof_toast })
+					}
+
+					return profs
+				})
+			}
 		}
-	}, [courses])
+
+		fetch_all_the_stuff()
+		// I only want this to run when courses changes len
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [courses.length])
 
 	useEffect(() => {
 		if (settings.term === 'Fall') {
@@ -131,7 +151,7 @@ export default () => {
 	}, [settings, settings.term])
 
 	return (
-		<Layout title="EZ-UMD">
+		<Layout title="📅 EZ-UMD 🏗️">
 			<Wrapper>
 				<h1>📅 EZ-UMD Schedule | Under Construction 🏗️ </h1>
 				<Flex
@@ -441,8 +461,25 @@ export default () => {
 								<Select
 									multi
 									options={availableProfessors.map((prof) => ({
-										label: prof,
-										id: prof,
+										label: prof.name,
+										id: prof.name,
+										custom: (
+											<span
+												style={{ display: 'flex', alignItems: 'center' }}
+												title={prof.name}
+											>
+												<span
+													style={{
+														maxWidth: '120px',
+														whiteSpace: 'nowrap',
+														textOverflow: 'ellipsis',
+													}}
+												>
+													<Professor prof={prof} />
+												</span>
+												<Rating rating={prof.average_rating} />
+											</span>
+										),
 									}))}
 									value={settings.avoid_professors}
 									onChange={(e) =>
@@ -470,30 +507,8 @@ export default () => {
 						loading={loading}
 						disabled={settings.courses.length === 0}
 						onClick={async () => {
-							const schedule_toast = toast.loading('Building your schedule...')
 							setLoading(true)
-							try {
-								const new_schedules = await fetch_schedules(settings)
-								setSchedules(
-									Object.entries(new_schedules as DanCourse).map((course) => ({
-										// @ts-expect-error - I don't even want to know why this is happening
-										...course[1],
-										course_name: course[0] as string,
-									})),
-								)
-
-								toast.success('Finished making your schedule!', {
-									id: schedule_toast,
-								})
-								setTimeout(() => {
-									window.scrollTo(0, 10000)
-								}, 100)
-							} catch {
-								toast.error('Error while creating your schedule!', {
-									id: schedule_toast,
-								})
-							}
-
+							await fetchSchedules(settings)
 							setLoading(false)
 						}}
 					>
@@ -522,7 +537,7 @@ export default () => {
 				<a href="https://fetchmonitors.com">Fetch Monitors</a>
 			</Wrapper>
 			<Wrapper invis>
-				<Schedule dan_schedules={schedules} />
+				<Schedule dan_schedules={schedules} professors={availableProfessors} />
 			</Wrapper>
 			<Wrapper
 				invis
@@ -541,7 +556,7 @@ export default () => {
 					Like this project?{' '}
 				</p>
 				<a href="https://github.com/MaximilianHollis/EZ-UMD-Client">
-					Check out the source code{' '}
+					Check out the source code!
 				</a>
 			</Wrapper>
 		</Layout>

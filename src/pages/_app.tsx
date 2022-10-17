@@ -2,8 +2,10 @@ import { Toaster } from 'react-hot-toast'
 import { AppProps } from 'next/app'
 import { ThemeProvider } from 'styled-components'
 import { useEffect, useState } from 'react'
+import { useEffectOnce } from 'react-use'
 import GlobalStyle from '../styles'
 import Preferences from '../components/Preferences'
+import { getLocal, setLocal } from '../utils'
 
 export const default_theme = {
 	primary: '#4D8BF7',
@@ -15,6 +17,8 @@ export const default_theme = {
 
 function App({ Component, pageProps }: AppProps) {
 	const [theme, setTheme] = useState(default_theme)
+
+	useEffectOnce(() => setTheme({ ...getLocal('theme'), ...default_theme }))
 
 	useEffect(() => {
 		if (theme.darkMode) {
@@ -44,9 +48,16 @@ function App({ Component, pageProps }: AppProps) {
 			<ThemeProvider theme={theme || default_theme}>
 				<Component {...pageProps} />
 				<Preferences
-					resetFn={() => setTheme(default_theme)}
+					resetFn={() => {
+						setTheme(default_theme)
+						setLocal('theme', default_theme)
+					}}
 					theme={theme}
-					setTheme={setTheme}
+					setTheme={(t) => {
+						setTheme(t)
+						setLocal('theme', t)
+						console.log('ops')
+					}}
 				/>
 			</ThemeProvider>
 		</>

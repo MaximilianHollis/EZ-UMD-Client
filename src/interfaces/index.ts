@@ -1,5 +1,3 @@
-import { days } from '../utils'
-
 export type Settings = {
 	courses: string[]
 	avoid_professors: string[]
@@ -54,3 +52,56 @@ export type DanCourse = {
 }
 
 export type DanSchedule = DanCourse[]
+
+export type Reviews = {
+	professor: string
+	course: string
+	review: string
+	rating: number
+}
+
+export type ProfData = {
+	courses: string[]
+	average_rating: number
+	name: string
+	reviews: Reviews[]
+	textbook_warning_percent?: number
+}
+
+export type GradeData = {
+	course: string
+	professor?: string
+	semester?: string
+	section?: string
+	'A+': number
+	A: number
+	'A-': number
+	'B+': number
+	B: number
+	'B-': number
+	'C+': number
+	C: number
+	'C-': number
+	'D+': number
+	D: number
+	'D-': number
+	F: number
+	W: number
+	Other: number
+}[]
+
+export const GPA = {
+	'A+': 4.0,
+	A: 4.0,
+	'A-': 3.7,
+	'B+': 3.3,
+	B: 3.0,
+	'B-': 2.7,
+	'C+': 2.3,
+	C: 2.0,
+	'C-': 1.7,
+	'D+': 1.3,
+	D: 1.0,
+	'D-': 0.7,
+	F: 0.0,
+}

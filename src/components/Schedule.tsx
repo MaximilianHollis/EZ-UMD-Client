@@ -1,5 +1,5 @@
 import styled, { ThemeContext } from 'styled-components'
-import { LayoutGroup, motion } from 'framer-motion'
+import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import { Br, Button, Buttons, Hint, Label, Option, Select } from 'ethereal2'
 import { nanoid } from 'nanoid'
 // @ts-expect-error shut up
@@ -7,7 +7,9 @@ import { useScreenshot } from 'use-react-screenshot'
 import { memo, useContext, useEffect, useRef, useState } from 'react'
 import { colors, days, toHumanTime } from '../utils'
 import { Wrapper } from './Wrapper'
-import { DanCourse, DanSchedule } from '../interfaces'
+import { DanCourse, DanSchedule, ProfData } from '../interfaces'
+import { Flex } from './Flex'
+import Professor from './Professor'
 
 const Row = styled.div`
 	display: flex;
@@ -18,8 +20,11 @@ const Row = styled.div`
 `
 
 const LayoutRow = styled(motion(Row))`
+	width: 100%;
 	max-width: 100%;
 	flex-shrink: 1;
+	display: flex;
+	display: contents;
 `
 
 const Column = styled.div`
@@ -76,6 +81,8 @@ type Class = {
 	name: string
 	start: number
 	end: number
+	professor: ProfData
+	gpa?: number
 	discussion?: boolean
 	location: string
 	width?: number
@@ -84,7 +91,13 @@ type Class = {
 	color: string
 }
 
-const Schedule = ({ dan_schedules }: { dan_schedules?: DanSchedule[] }) => {
+const Schedule = ({
+	dan_schedules,
+	professors,
+}: {
+	dan_schedules?: DanSchedule[]
+	professors: ProfData[]
+}) => {
 	const ref = useRef<HTMLDivElement>(null)
 	const theme = useContext(ThemeContext)
 	const [image, takeScreenshot] = useScreenshot()
@@ -100,12 +113,17 @@ const Schedule = ({ dan_schedules }: { dan_schedules?: DanSchedule[] }) => {
 		}
 	}, [image])
 
+	useEffect(() => {
+		setNum(0)
+	}, [dan_schedules])
+
 	const schedule: Class[][] = []
 
 	let course_index = 0
 
 	const dan_schedule: DanSchedule =
-		(dan_schedules?.length &&
+		(dan_schedules &&
+			(dan_schedules?.length || 0) > num &&
 			Object.entries(dan_schedules[num]).map(([name, data]) => ({
 				...(data as DanCourse),
 				course_name: name as string,
@@ -130,6 +148,7 @@ const Schedule = ({ dan_schedules }: { dan_schedules?: DanSchedule[] }) => {
 					layoutId: course_index.toString(),
 					id: nanoid(),
 					color: colors[ci % colors.length],
+					professor: professors.find((p) => p.name === course.prof) as ProfData,
 				})
 				course_index += 1
 				schedule[day].sort((a, b) => a.start - b.start)
@@ -164,6 +183,7 @@ const Schedule = ({ dan_schedules }: { dan_schedules?: DanSchedule[] }) => {
 
 		for (const classItem of sortedDay) {
 			if (classItem.start > lastClassEnd) {
+				// Filler class
 				formattedDay.push({
 					name: '',
 					start: lastClassEnd,
@@ -176,6 +196,7 @@ const Schedule = ({ dan_schedules }: { dan_schedules?: DanSchedule[] }) => {
 			lastClassEnd = classItem.end
 		}
 
+		// Filler class
 		if (lastClassEnd < latest_class) {
 			formattedDay.push({
 				name: '',
@@ -214,6 +235,8 @@ const Schedule = ({ dan_schedules }: { dan_schedules?: DanSchedule[] }) => {
 					width: '100%',
 					display: 'flex',
 					flexDirection: 'column',
+					opacity: dan_schedules?.length ? 1 : 0.5,
+					pointerEvents: dan_schedules?.length ? 'all' : 'none',
 				}}
 			>
 				<div
@@ -221,35 +244,73 @@ const Schedule = ({ dan_schedules }: { dan_schedules?: DanSchedule[] }) => {
 						width: '100%',
 						display: 'flex',
 						justifyContent: 'space-between',
-						overflow: 'hidden',
 					}}
 				>
-					<Option>
-						<span>
+					<Option
+						style={{
+							minWidth: '160px',
+							width: '100%',
+						}}
+					>
+						<span
+							style={{
+								minWidth: '160px',
+							}}
+						>
 							<Label>
 								Schedule {num + 1} of {dan_schedules?.length || '-'}
 							</Label>
 
-							<Hint>Average aggregate GPA: -.--</Hint>
+							<Hint
+								style={{
+									marginBottom: '3px',
+								}}
+							>
+								EZ Score: coming soon™
+							</Hint>
+							<Hint>
+								Schedule Rating:{' '}
+								{(
+									formattedSchedule.reduce(
+										(acc, day) =>
+											acc +
+											day
+												.filter((d) => d.name)
+												.reduce(
+													(acc2, classItem) =>
+														acc2 +
+														(classItem?.professor?.average_rating || 2.5),
+													0,
+												),
+										0,
+									) /
+									formattedSchedule.reduce(
+										(acc, day) => acc + day.filter((d) => d.name).length,
+										0,
+									)
+								).toFixed(2) || '-.--'}
+							</Hint>
 						</span>
-						{/* <Toggle value={vertical} onClick={() => console.log('')} /> */}
 					</Option>
 
-					<Option>
-						<span>
+					<Option
+						style={{
+							minWidth: '120px',
+							width: '100%',
+						}}
+					>
+						<span
+							style={{
+								minWidth: '120px',
+							}}
+						>
 							<Select
-								options={[
-									{ id: '0', label: '1' },
-									{ id: '1', label: '2' },
-									{ id: '2', label: '3' },
-									{ id: '3', label: '4' },
-									{ id: '4', label: '5' },
-									{ id: '5', label: '6' },
-									{ id: '6', label: '7' },
-									{ id: '7', label: '8' },
-									{ id: '8', label: '9' },
-									{ id: '9', label: '10' },
-								]}
+								options={new Array(dan_schedules?.length || 0)
+									.fill(0)
+									.map((_, i) => ({
+										label: `${i + 1}`,
+										id: i.toString(),
+									}))}
 								value={{ id: num.toString(), label: (num + 1).toString() }}
 								multi={false}
 								onChange={(val) => setNum(parseInt(val.id, 10))}
@@ -257,6 +318,46 @@ const Schedule = ({ dan_schedules }: { dan_schedules?: DanSchedule[] }) => {
 							<Hint>Choose schedule</Hint>
 						</span>
 					</Option>
+				</div>
+				<div>
+					<Flex
+						no_column
+						style={{
+							justifyContent: 'flex-start',
+							alignItems: 'center',
+							overflowX: 'scroll',
+							height: '50px',
+							userSelect: 'none',
+							marginLeft: '4px',
+						}}
+					>
+						<AnimatePresence>
+							{formattedSchedule?.length &&
+								[
+									...new Set(
+										formattedSchedule
+											?.flat()
+											?.filter((c) => c?.professor)
+											?.map((c) => c.professor),
+									),
+								]?.map((prof) => (
+									<motion.div
+										key={prof.name}
+										style={{
+											width: 'fit-content',
+											flexShrink: 0,
+										}}
+										initial={{ opacity: 0 }}
+										animate={{ opacity: 1 }}
+										exit={{ opacity: 0 }}
+										transition={{ duration: 0.3 }}
+										layoutId={prof.name}
+									>
+										<Professor prof={prof} />
+									</motion.div>
+								))}
+						</AnimatePresence>
+					</Flex>
 				</div>
 			</div>
 			<div
@@ -342,7 +443,7 @@ const Schedule = ({ dan_schedules }: { dan_schedules?: DanSchedule[] }) => {
 													whiteSpace: 'nowrap',
 												}}
 											>
-												{c.name}
+												{`${c.name} - ${c?.professor?.name || 'TBA'}`}
 											</span>
 											<span
 												style={{
@@ -377,7 +478,7 @@ const Schedule = ({ dan_schedules }: { dan_schedules?: DanSchedule[] }) => {
 					Save
 				</Button>
 				<Button
-					disabled={!dan_schedule?.length}
+					disabled={!dan_schedule.length}
 					onClick={() => {
 						if (num < (dan_schedules?.length || 0) - 1) {
 							setNum(num + 1)
