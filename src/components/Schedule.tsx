@@ -221,6 +221,7 @@ const Schedule = ({ dan_schedules }: { dan_schedules?: DanSchedule[] }) => {
 						width: '100%',
 						display: 'flex',
 						justifyContent: 'space-between',
+						overflow: 'hidden',
 					}}
 				>
 					<Option>
@@ -373,7 +374,7 @@ const Schedule = ({ dan_schedules }: { dan_schedules?: DanSchedule[] }) => {
 						takeScreenshot(ref.current)
 					}}
 				>
-					Save Schedule
+					Save
 				</Button>
 				<Button
 					disabled={!dan_schedule?.length}
@@ -385,7 +386,7 @@ const Schedule = ({ dan_schedules }: { dan_schedules?: DanSchedule[] }) => {
 						}
 					}}
 				>
-					Next Schedule
+					Next
 				</Button>
 			</Buttons>
 		</Wrapper>
