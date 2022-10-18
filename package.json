@@ -7,7 +7,7 @@
     "type-check": "tsc"
   },
   "dependencies": {
-    "ethereal2": "^2.1.6",
+    "ethereal2": "^2.1.7",
     "framer-motion": "^7.5.1",
     "html2canvas": "^1.4.1",
     "ky": "^0.31.3",

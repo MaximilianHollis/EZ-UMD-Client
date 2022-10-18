@@ -1,6 +1,7 @@
 import ky from 'ky'
 import toast from 'react-hot-toast'
 import create from 'zustand'
+import { devtools } from 'zustand/middleware'
 import {
 	DanCourse,
 	DanSchedule,
@@ -55,6 +56,13 @@ export const toMinutes = (time: string) => {
 	return hours * 60 + minutes + offset || 0
 }
 
+export const toAmPm = (time: number) => {
+	const hours = Math.floor(time / 60)
+	const minutes = time % 60
+	const ampm = hours >= 12 ? 'pm' : 'am'
+	return `${hours % 12 || 12}:${minutes.toString().padStart(2, '0')}${ampm}`
+}
+
 export const term_options = [
 	{ label: 'Fall', id: 'Fall', hint: '2022 Fall semester' },
 	{ label: 'Spring', id: 'Spring', hint: '2023 Spring semester' },
@@ -96,6 +104,7 @@ export const fetch_schedules = async (settings: Settings) => {
 	const formatted_settings = {
 		required_courses: settings.courses,
 		avoid_instructors: settings.avoid_professors,
+		seats_required: settings.waitlist_slots,
 		avoid_time_ranges: [
 			{
 				start_time: 0,
@@ -226,53 +235,57 @@ interface AppState {
 	fetchSchedules: (s: Settings) => Promise<void>
 }
 
-export const useStore = create<AppState>((set) => ({
-	settings: {
-		avoid_professors: [],
-		best_times: [],
-		courses: [],
-		gap_between_classes: 10,
-		max_credits: 18,
-		min_credits: 12,
-		term: 'Spring',
-		free_day: false,
-		waitlist_slots: 5,
-		earliest_start_time: '9:00AM',
-		latest_end_time: '4:00PM',
-	},
-	setSettings: (settings: Settings) => set({ settings }),
-	availableProfessors: [],
-	setAvailableProfessors: (profs: ProfData[]) =>
-		set({ availableProfessors: profs }),
-	availableCourses: [],
-	setAvailableCourses: (courses: string[]) =>
-		set({ availableCourses: courses }),
-	schedules: [],
-	setSchedules: (schedules: DanSchedule[]) => set({ schedules }),
-	async fetchSchedules(settings: Settings) {
-		const schedule_toast = toast.loading('Building your schedule...')
+export const useStore = create<AppState>()(
+	devtools((set) => ({
+		settings: {
+			avoid_professors: [],
+			best_times: [],
+			courses: [],
+			gap_between_classes: 10,
+			max_credits: 18,
+			min_credits: 12,
+			term: 'Spring',
+			free_day: false,
+			waitlist_slots: 0,
+			earliest_start_time: '9:00AM',
+			latest_end_time: '4:00PM',
+		},
+		setSettings: (settings: Settings) => set({ settings }),
+		availableProfessors: [],
+		setAvailableProfessors: (profs: ProfData[]) =>
+			set({ availableProfessors: profs }),
+		availableCourses: [],
+		setAvailableCourses: (courses: string[]) =>
+			set({ availableCourses: courses }),
+		schedules: [],
+		setSchedules: (schedules: DanSchedule[]) => set({ schedules }),
+		async fetchSchedules(settings: Settings) {
+			const schedule_toast = toast.loading('Building your schedule...')
 
-		try {
-			const new_schedules = await fetch_schedules(settings)
-			set({
-				...settings,
-				schedules: Object.entries(new_schedules as DanCourse).map((course) => ({
-					// @ts-expect-error - I don't even want to know why this is happening
-					...course[1],
-					course_name: course[0] as string,
-				})),
-			})
+			try {
+				const new_schedules = await fetch_schedules(settings)
+				set({
+					...settings,
+					schedules: Object.entries(new_schedules as DanCourse).map(
+						(course) => ({
+							// @ts-expect-error - I don't even want to know why this is happening
+							...course[1],
+							course_name: course[0] as string,
+						}),
+					),
+				})
 
-			toast.success('Finished making your schedule!', {
-				id: schedule_toast,
-			})
-			setTimeout(() => {
-				window.scrollTo(0, 10000)
-			}, 100)
-		} catch {
-			toast.error('Error while creating your schedule!', {
-				id: schedule_toast,
-			})
-		}
-	},
-}))
+				toast.success('Finished making your schedule!', {
+					id: schedule_toast,
+				})
+				setTimeout(() => {
+					window.scrollTo(0, 10000)
+				}, 100)
+			} catch {
+				toast.error('Error while creating your schedule!', {
+					id: schedule_toast,
+				})
+			}
+		},
+	})),
+)

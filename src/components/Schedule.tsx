@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid'
 // @ts-expect-error shut up
 import { useScreenshot } from 'use-react-screenshot'
 import { memo, useContext, useEffect, useRef, useState } from 'react'
-import { colors, days, toHumanTime } from '../utils'
+import { colors, days, toAmPm } from '../utils'
 import { Wrapper } from './Wrapper'
 import { DanCourse, DanSchedule, ProfData } from '../interfaces'
 import { Flex } from './Flex'
@@ -17,14 +17,33 @@ const Row = styled.div`
 	align-items: center;
 	justify-content: space-between;
 	width: 100%;
+	position: relative;
 `
 
 const LayoutRow = styled(motion(Row))`
 	width: 100%;
 	max-width: 100%;
 	flex-shrink: 1;
-	display: flex;
 	display: contents;
+`
+
+export const BackgroundRow = styled.div<{
+	hourPercent?: number
+	hourOffset?: number
+}>`
+	position: absolute;
+	top: 0;
+	left: ${({ hourOffset }) => `calc( 155px + ${hourOffset || 0}%)`};
+	width: ${({ hourOffset }) => `calc( 100% - 160px - ${hourOffset || 0}%)`};
+	height: 100%;
+	background-size: ${({ hourPercent, hourOffset }) =>
+		hourPercent
+			? `${hourPercent - (hourOffset || 0)}% ${
+					hourPercent - (hourOffset || 0)
+			  }%`
+			: '10% 10%'};
+	background-image: linear-gradient(to right, #aaa 2px, transparent 1px);
+	z-index: 1;
 `
 
 const Column = styled.div`
@@ -40,13 +59,14 @@ const Day = styled(Column)`
 	font-size: 1rem;
 	font-weight: 600;
 	flex-shrink: 0;
+	z-index: 2;
 	// mobile
 	@media (max-width: 768px) {
 		display: none;
 	}
 `
 
-const Item = styled(motion.div)<{ width: number; f: boolean }>`
+const Item = styled(motion.div)<{ width: number; $f: boolean }>`
 	color: white;
 	height: 86px;
 	padding: 5px;
@@ -55,9 +75,10 @@ const Item = styled(motion.div)<{ width: number; f: boolean }>`
 	align-items: center;
 	justify-content: center;
 	overflow: hidden;
+	z-index: 3;
 
-	${({ f }) =>
-		f &&
+	${({ $f }) =>
+		$f &&
 		`
 		opacity: 0 !important;
 		user-select: none;
@@ -65,6 +86,17 @@ const Item = styled(motion.div)<{ width: number; f: boolean }>`
 
 	& > div > * {
 		height: 20px;
+	}
+	position: relative;
+	&:before {
+		content: '';
+		position: absolute;
+		top: 8px;
+		left: 8px;
+		width: calc(100% - 16px);
+		height: calc(100% - 16px);
+		background: white;
+		z-index: -1;
 	}
 
 	// mobile
@@ -175,6 +207,11 @@ const Schedule = ({
 	const latest_class = Math.max(
 		...schedule.map((day) => Math.max(...day.map((c) => c.end))),
 	)
+
+	// Hardcoded for now
+	const hour_percent = (100 / (latest_class - earliest_class)) * 60 + 0.22
+
+	const hour_offset = earliest_class % 60
 
 	const formattedSchedule = Object.values(schedule).map((day) => {
 		const formattedDay = []
@@ -400,10 +437,12 @@ const Schedule = ({
 								</p>
 							</Day>
 							<LayoutRow>
+								<BackgroundRow hourPercent={hour_percent} />
+
 								{classes.map((c) => (
 									<Item
 										key={c.id}
-										f={!c.name}
+										$f={!c.name}
 										width={c.width || 0}
 										title={c.name}
 										layoutId={c.layoutId}
@@ -435,7 +474,7 @@ const Schedule = ({
 													fontSize: '12px',
 												}}
 											>
-												{toHumanTime(c.start)} - {toHumanTime(c.end)}
+												{toAmPm(c.start)} - {toAmPm(c.end)}
 											</p>
 											<span
 												style={{

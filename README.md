@@ -58,7 +58,7 @@ cd EZ-UMD-Client
 With [cotton](https://cotton.js.org/) (much faster) 😎
 
 ```bash
-cotton
+cotton install
 ```
 
 With yarn (slowpoke) 🙄

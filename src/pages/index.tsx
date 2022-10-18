@@ -10,6 +10,7 @@ import {
 	Hint,
 	Title,
 	Select,
+	SegmentedControl,
 } from 'ethereal2'
 import { MdPeople, MdSchool } from 'react-icons/md'
 import { toast } from 'react-hot-toast'
@@ -72,6 +73,7 @@ export default () => {
 
 	const availableCourses = useStore((state) => state.availableCourses)
 	const setAvailableCourses = useStore((state) => state.setAvailableCourses)
+	const [waitlist, setWaitlist] = useState(false)
 
 	const { courses } = settings
 
@@ -326,39 +328,48 @@ export default () => {
 							</span>
 						</Option>
 					</Card>
-					<Card shadow comingSoon>
-						<Title>Waitlist Options</Title>
+					<Card shadow>
+						<Title>Seating Options</Title>
 
 						<Option>
 							<span>
-								<Label>Allow waitlists?</Label>
-
-								<Hint>Allow classes with waitlists</Hint>
+								<SegmentedControl
+									options={[
+										{ id: 'waitlist', label: 'Waitlist' },
+										{ id: 'open', label: 'Open' },
+									]}
+									value={waitlist ? 'waitlist' : 'open'}
+									onChange={(val) => setWaitlist(val.id === 'waitlist')}
+								/>
 							</span>
-							<Toggle value={enableWaitlist} onClick={setEnableWaitlist} />
 						</Option>
 						<Option>
-							<motion.div
-								transition={{ duration: 0.3 }}
-								animate={{ opacity: enableWaitlist ? 1 : 0.4 }}
-								style={{
-									pointerEvents: enableWaitlist ? 'all' : 'none',
-								}}
-							>
+							<span>
 								<Input
 									minimal
 									icon={<MdPeople />}
-									placeholder="Enter max size"
-									value={(settings.waitlist_slots || '').toString()}
+									placeholder={
+										waitlist ? 'Enter waitlist size' : 'Enter open seats'
+									}
+									value={(
+										settings.waitlist_slots * (waitlist ? 1 : 1) || ''
+									).toString()}
 									onChange={(val) =>
 										setSettings({
 											...settings,
-											waitlist_slots: parseInt(val, 10) || 0,
+											waitlist_slots:
+												(parseInt(val, 10) || 0) * (waitlist ? 1 : -1),
 										})
 									}
 								/>
-								<Hint>Maximum desired waitlist size</Hint>
-							</motion.div>
+								<Hint>
+									{waitlist
+										? `Class must have less than ${Number(
+												settings.waitlist_slots,
+										  )} waitlist spots`
+										: `Class must have at least ${settings.waitlist_slots} open seats`}
+								</Hint>
+							</span>
 						</Option>
 					</Card>
 				</Flex>
