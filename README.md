@@ -3,7 +3,7 @@
 ## Easy peasy schedule builder 🏗️ for UMD* students.
 Fully open source**, and free to use, features include:
 * Abracadabra! Make schedules in seconds. 🪄
-* EZ Dubs! Pick the easiest possible sections thanks to our EZ-Score™️ index*** 🎓 (🚧)
+* Easy Peasy! Pick the easiest possible sections thanks to our EZ-Score™️ index*** 🎓 (🚧)
 * Not on my watch! Warnings for professors with low ratings, grades or bad reviews. 🚫
 * No, I'm not paying for your damn textbook! "Entrepreneurs" are marked with a red flag. 🖕
 
