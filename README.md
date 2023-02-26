@@ -1,5 +1,7 @@
 # 📅 EZ-UMD 🏗️
 
+##### ⚠️ Irony detected
+
 ## Easy peasy schedule builder 🏗️ for UMD* students.
 Fully open source**, and free to use, features include:
 * Abracadabra! Make schedules in seconds. 🪄
