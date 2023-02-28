@@ -33,9 +33,9 @@ This project is graciously sponsored by [Fetch Monitors](https://fetchmonitors.c
 | GPA maximizer 🎓 						| Yes 😍        | No 😬        |  No 😬       |
 | Professor ratings/reviews   | Yes 🤩        | No 😩        |  No 😩       |
 | Textbook purchase avoidance | Yes 😎        | No 💀        |  No 💀       |
-| Account required 🧾         | No  😊        | Yes 👎       |  Yes 👎      |
+| No Account required 🧾      | Yes 😊        | No 👎        |  No 👎       |
 | Open source 🆓              | Yes 🥰        | No 🙁        |  No 🙁       |
-| Does it look good?       	  | Yes 🤩        | No 🤢        |  Kinda 🫤    |
+| Does it look good?       	  | Yes 😳        | No 🤢        |  Kinda 🫤    |
 | Is it fast?          				| Yes 🏎️        | Not at all 🐌|  No 🐢       |
 | Is it sponsored by Fetch    | Yes 🐕        | No 🙄        |  No 🙄       |
 
