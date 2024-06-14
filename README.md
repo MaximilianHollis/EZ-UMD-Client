@@ -1,6 +1,6 @@
 # 📅 EZ-UMD 🏗️
 
-## Easy peasy schedule builder 🏗️ for UMD* students.
+## Easy peasy schedule builder for students at UMD
 
 ## 💻 Run Locally 
 
